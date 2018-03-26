@@ -6,6 +6,7 @@ module Lib
 
 import Text.Peggy
 import Data.Text (Text, pack)
+import Data.Maybe (catMaybes)
 
 someFunc :: IO ()
 someFunc = putStrLn "someFunc"
@@ -20,16 +21,21 @@ data ChangeOp = ChangeOp Pos Pos [Line]
 
 data Pos = Pos Int Int
 
-data Line = AddLine Text | RemoveLine Text
+data Line = AddLine Text | RemoveLine Text | UnchangedLine Text
 
 [peggy|
 
 nl :: String = [\n] [\r] { "\n\r" }
 
-addline :: Line
-  = " +" ([^\n\r]*) { AddLine    (pack $1) }
+addline :: Maybe Line
+  = " +" ([^\n\r]*) nl { Just $ AddLine    (pack $1) }
 
-removeline :: Line
-  = " -" ([^\n\r]*) { RemoveLine (pack $1) }
+removeline :: Maybe Line
+  = " -" ([^\n\r]*) nl { Just $ RemoveLine (pack $1) }
 
+unchangedline :: Maybe Line
+  = "  " ([^\n\r]*) nl { Just $ UnchangedLine (pack $1) }
+
+lines :: [Line]
+  = (addline / removeline / unchangedline)+ { catMaybes $1 }
 |]
