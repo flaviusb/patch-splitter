@@ -1,7 +1,7 @@
 name:                patch-splitter
 version:             0.1.0.0
 github:              "flaviusb/patch-splitter"
-license:             GPLv3
+license:             GPL-3
 author:              "Justin (:flaviusb) Marsh"
 maintainer:          "justin.marsh@flaviusb.net"
 copyright:           "2018 Justin (:flaviusb) Marsh"
@@ -21,6 +21,7 @@ description:         Please see the README on Github at <https://github.com/flav
 
 dependencies:
 - base >= 4.7 && < 5
+- peggy
 
 library:
   source-dirs: src
