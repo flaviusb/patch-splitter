@@ -80,7 +80,7 @@ diff :: Diff
   = (change nl { $1 })+ { Diff $1 }
 
 patch :: Patch
-  = commitline nl metadata nl diff { Patch $1 $3 $6 }
+  = commitline nl metadata nl diff { Patch $1 $3 $5 }
 
 patches :: [Patch]
   = (patch nl nl { $1 })+
