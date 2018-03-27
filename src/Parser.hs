@@ -7,7 +7,7 @@ import Text.Peggy
 import Data.Text (Text, pack, unlines)
 import Data.Maybe (catMaybes)
 
-data Patch = Patch Text Text Text Diff  {- parents metadata hash? diffs -}
+data Patch = Patch CommitLine CommitMetadata Diff
 
 data Diff = Diff [Change]
 
