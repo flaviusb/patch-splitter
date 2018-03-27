@@ -13,9 +13,9 @@ data Diff = Diff [Change]
 
 data Change = Change Text Text ChangeOp {- oldpath newpath change_operation -}
 
-data ChangeOp = ChangeOp Pos Pos [Line]
+data ChangeOp = ChangeOp Pos [Line]
 
-data Pos = Pos Int Int
+data Pos = Pos Int Int Int Int
 
 data Line = AddLine Text | RemoveLine Text | UnchangedLine Text
 
@@ -63,5 +63,6 @@ chunkheader :: ChunkHeader
           _       -> (ChunkHeader (Just $ pack $1) (pack $2))
     }
 
-
+pos :: Pos
+  = "@@ -" [0-9]+ "," [0-9]+ " +" [0-9]+ "," [0-9]+ " @@" nl { Pos (read $1) (read $2) (read $3) (read $4) }
 |]
