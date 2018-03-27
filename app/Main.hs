@@ -23,7 +23,7 @@ real_main :: AppOptions -> IO ()
 real_main options =
     do
       commit_text <- readFile $ fileName options
-      let commits = parseString patches "placeholder" commit_text
+      let commits = parseString patches (fileName options) commit_text
       putStrLn $ show commits
 
 main :: IO ()
