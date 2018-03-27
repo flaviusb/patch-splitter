@@ -19,6 +19,8 @@ data Pos = Pos Int Int
 
 data Line = AddLine Text | RemoveLine Text | UnchangedLine Text
 
+data CommitLine = CommitLine Text [Text] (Maybe Text) {- This hash, parent hashes, from hash -}
+
 [peggy|
 
 nl :: String = [\n] [\r] { "\n\r" }
@@ -34,4 +36,14 @@ unchangedline :: Maybe Line
 
 lines :: [Line]
   = (addline / removeline / unchangedline)+ { catMaybes $1 }
+
+hash :: Text
+  = [a-f0-9]+ { pack $1 }
+
+aftertext  :: Text
+  = [^\n\r]+ { pack $1 }
+
+commitline :: CommitLine
+  = "commit " hash (" "+ hash { $2 })* aftertext?  { CommitLine $1 $2 $3 }
+
 |]
