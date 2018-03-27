@@ -23,6 +23,8 @@ data CommitLine = CommitLine Text [Text] (Maybe Text) {- This hash, parent hashe
 
 data CommitMetadata = CommitMetadata Text Text Text Text Text {- Commit comment, author, author date, commit, commit date -}
 
+data ChunkHeader = ChunkHeader (Maybe Text) Text
+
 [peggy|
 
 nl :: String = [\n] [\r] { "\n\r" }
@@ -53,5 +55,13 @@ indentedtext :: Text
 
 metadata :: CommitMetadata
   = "Author:     " aftertext nl "AuthorDate: " aftertext nl "Commit:     " aftertext nl "CommitDate: " aftertext nl indentedtext { CommitMetadata $9 $1 $3 $5 $7 }
+
+chunkheader :: ChunkHeader
+  = "diff --git a/" [^ \n\r]+ " b/" [^ \n\r]+ nl ("new file mode " [^ \n\r]+ nl { "New File" })? "index " [^ \n\r]+ " " [^ \n\r]+ nl "--- a/" [^ \n\r]+ nl "+++ b/" [^ \n\r]+ nl { 
+        case $4 of
+          Nothing -> (ChunkHeader Nothing (pack $2))
+          _       -> (ChunkHeader (Just $ pack $1) (pack $2))
+    }
+
 
 |]
