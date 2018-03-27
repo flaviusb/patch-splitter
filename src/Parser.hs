@@ -74,4 +74,7 @@ changeop :: ChangeOp
 change :: Change
   = chunkheader nl changeop { Change $1 $3 }
 
+diff :: Diff
+  = (change nl { $1 })+ { Diff $1 }
+
 |]
