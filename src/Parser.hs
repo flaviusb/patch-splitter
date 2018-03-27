@@ -6,26 +6,28 @@ module Parser
 import Text.Peggy
 import Data.Text (Text, pack, unlines)
 import Data.Maybe (catMaybes)
+import Data.Data
+import Data.Typeable
 
-data Patch = Patch CommitLine CommitMetadata Diff
+data Patch = Patch CommitLine CommitMetadata Diff deriving (Show, Data, Eq, Typeable)
 
-data Diff = Diff [Change]
+data Diff = Diff [Change] deriving (Show, Data, Eq, Typeable)
 
-data Change = Change ChunkHeader ChangeOp {- oldpath newpath change_operation -}
+data Change = Change ChunkHeader ChangeOp deriving (Show, Data, Eq, Typeable) {- oldpath newpath change_operation -}
 
-data ChangeOp = ChangeOp Pos Lines
+data ChangeOp = ChangeOp Pos Lines deriving (Show, Data, Eq, Typeable)
 
-data Pos = Pos Int Int Int Int
+data Pos = Pos Int Int Int Int deriving (Show, Data, Eq, Typeable)
 
-data Lines = Lines [Line] Bool
+data Lines = Lines [Line] Bool deriving (Show, Data, Eq, Typeable)
 
-data Line = AddLine Text | RemoveLine Text | UnchangedLine Text
+data Line = AddLine Text | RemoveLine Text | UnchangedLine Text deriving (Show, Data, Eq, Typeable)
 
-data CommitLine = CommitLine Text [Text] (Maybe Text) {- This hash, parent hashes, from hash -}
+data CommitLine = CommitLine Text [Text] (Maybe Text) deriving (Show, Data, Eq, Typeable) {- This hash, parent hashes, from hash -}
 
-data CommitMetadata = CommitMetadata Text Text Text Text Text {- Commit comment, author, author date, commit, commit date -}
+data CommitMetadata = CommitMetadata Text Text Text Text Text deriving (Show, Data, Eq, Typeable) {- Commit comment, author, author date, commit, commit date -}
 
-data ChunkHeader = ChunkHeader (Maybe Text) Text
+data ChunkHeader = ChunkHeader (Maybe Text) Text deriving (Show, Data, Eq, Typeable)
 
 [peggy|
 
