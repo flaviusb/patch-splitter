@@ -58,7 +58,7 @@ indentedtext :: Text
   = ("    " aftertext nl { $1 })+ { Data.Text.unlines $1 }
 
 metadata :: CommitMetadata
-  = "Author:     " aftertext nl "AuthorDate: " aftertext nl "Commit:     " aftertext nl "CommitDate: " aftertext nl indentedtext { CommitMetadata $9 $1 $3 $5 $7 }
+  = "Author:     " aftertext nl "AuthorDate: " aftertext nl "Commit:     " aftertext nl "CommitDate: " aftertext nl nl indentedtext { CommitMetadata $10 $1 $3 $5 $7 }
 
 chunkheader :: ChunkHeader
   = "diff --git a/" [^ \n\r]+ " b/" [^ \n\r]+ nl ("new file mode " [^ \n\r]+ nl { "New File" })? "index " [^ \n\r]+ " " [^ \n\r]+ nl "--- a/" [^ \n\r]+ nl "+++ b/" [^ \n\r]+ nl { 
@@ -80,9 +80,9 @@ diff :: Diff
   = (change nl { $1 })+ { Diff $1 }
 
 patch :: Patch
-  = commitline nl metadata nl diff { Patch $1 $3 $5 }
+  = commitline nl metadata nl nl diff { Patch $1 $3 $6 }
 
 patches :: [Patch]
-  = (patch nl { $1 })+
+  = (patch nl nl { $1 })+
 
 |]
