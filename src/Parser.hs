@@ -4,7 +4,7 @@ module Parser
      where
 
 import Text.Peggy
-import Data.Text (Text, pack)
+import Data.Text (Text, pack, unlines)
 import Data.Maybe (catMaybes)
 
 data Patch = Patch Text Text Text Diff  {- parents metadata hash? diffs -}
@@ -21,7 +21,7 @@ data Line = AddLine Text | RemoveLine Text | UnchangedLine Text
 
 data CommitLine = CommitLine Text [Text] (Maybe Text) {- This hash, parent hashes, from hash -}
 
-data CommitMetadata = CommitMetadata Text Text Text Text
+data CommitMetadata = CommitMetadata Text Text Text Text Text {- Commit comment, author, author date, commit, commit date -}
 
 [peggy|
 
@@ -48,7 +48,10 @@ aftertext  :: Text
 commitline :: CommitLine
   = "commit " hash (" "+ hash { $2 })* aftertext?  { CommitLine $1 $2 $3 }
 
+indentedtext :: Text
+  = ("    " aftertext nl { $1 })+ { Data.Text.unlines $1 }
+
 metadata :: CommitMetadata
-  = "Author:     " aftertext nl "AuthorDate: " aftertext nl "Commit:     " aftertext nl "CommitDate: " aftertext nl { CommitMetadata $1 $3 $5 $7 }
+  = "Author:     " aftertext nl "AuthorDate: " aftertext nl "Commit:     " aftertext nl "CommitDate: " aftertext nl indentedtext { CommitMetadata $9 $1 $3 $5 $7 }
 
 |]
