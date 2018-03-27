@@ -31,7 +31,7 @@ data ChunkHeader = ChunkHeader (Maybe Text) Text deriving (Show, Data, Eq, Typea
 
 [peggy|
 
-nl :: String = [\n] [\r] { "\n\r" }
+nl :: String = [\r]? [\n] { "\n" }
 
 addline :: Maybe Line
   = "+" ([^\n\r]*) nl { Just $ AddLine    (pack $1) }
