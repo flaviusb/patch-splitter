@@ -68,7 +68,7 @@ chunkheader :: ChunkHeader
     }
 
 pos :: Pos
-  = "@@ -" [0-9]+ "," [0-9]+ " +" [0-9]+ "," [0-9]+ " @@" nl { Pos (read $1) (read $2) (read $3) (read $4) }
+  = "@@ -" [0-9]+ "," [0-9]+ " +" [0-9]+ "," [0-9]+ " @@" { Pos (read $1) (read $2) (read $3) (read $4) }
 
 changeop :: ChangeOp
   = pos nl liness { ChangeOp $1 $3 }
