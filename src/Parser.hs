@@ -13,9 +13,11 @@ data Diff = Diff [Change]
 
 data Change = Change Text Text ChangeOp {- oldpath newpath change_operation -}
 
-data ChangeOp = ChangeOp Pos [Line]
+data ChangeOp = ChangeOp Pos Lines
 
 data Pos = Pos Int Int Int Int
+
+data Lines = Lines [Line] Bool
 
 data Line = AddLine Text | RemoveLine Text | UnchangedLine Text
 
@@ -38,8 +40,8 @@ removeline :: Maybe Line
 unchangedline :: Maybe Line
   = " " ([^\n\r]*) nl { Just $ UnchangedLine (pack $1) }
 
-lines :: [Line]
-  = (addline / removeline / unchangedline)+ { catMaybes $1 }
+lines :: Lines
+  = (addline / removeline / unchangedline)+ ("\ No newline at end of file" nl)? { Lines (catMaybes $1) ($2 == Nothing) }
 
 hash :: Text
   = [a-f0-9]+ { pack $1 }
@@ -65,4 +67,7 @@ chunkheader :: ChunkHeader
 
 pos :: Pos
   = "@@ -" [0-9]+ "," [0-9]+ " +" [0-9]+ "," [0-9]+ " @@" nl { Pos (read $1) (read $2) (read $3) (read $4) }
+
+
+
 |]
