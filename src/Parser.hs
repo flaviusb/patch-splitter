@@ -21,6 +21,8 @@ data Line = AddLine Text | RemoveLine Text | UnchangedLine Text
 
 data CommitLine = CommitLine Text [Text] (Maybe Text) {- This hash, parent hashes, from hash -}
 
+data CommitMetadata = CommitMetadata Text Text Text Text
+
 [peggy|
 
 nl :: String = [\n] [\r] { "\n\r" }
@@ -45,5 +47,8 @@ aftertext  :: Text
 
 commitline :: CommitLine
   = "commit " hash (" "+ hash { $2 })* aftertext?  { CommitLine $1 $2 $3 }
+
+metadata :: CommitMetadata
+  = "Author:     " aftertext nl "AuthorDate: " aftertext nl "Commit:     " aftertext nl "CommitDate: " aftertext nl { CommitMetadata $1 $3 $5 $7 }
 
 |]
