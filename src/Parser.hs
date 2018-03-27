@@ -11,7 +11,7 @@ data Patch = Patch CommitLine CommitMetadata Diff
 
 data Diff = Diff [Change]
 
-data Change = Change Text Text ChangeOp {- oldpath newpath change_operation -}
+data Change = Change ChunkHeader ChangeOp {- oldpath newpath change_operation -}
 
 data ChangeOp = ChangeOp Pos Lines
 
@@ -70,5 +70,8 @@ pos :: Pos
 
 changeop :: ChangeOp
   = pos nl liness { ChangeOp $1 $3 }
+
+change :: Change
+  = chunkheader nl changeop { Change $1 $3 }
 
 |]
