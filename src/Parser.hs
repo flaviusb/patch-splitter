@@ -66,8 +66,8 @@ metadata :: CommitMetadata
 chunkheader :: ChunkHeader
   = "diff --git a/" [^ \n\r]+ [ ] "b/" [^ \n\r]+ nl ("new file mode " [^ \n\r]+ nl { "New File" })? "index " [^ \n\r]+ ([ ] [^ \n\r]+ { $2 })* nl (("--- a/" [^ \n\r]+) / "--- /dev/null" { "/dev/null" }) nl "+++ b/" [^ \n\r]+ { 
         case $5 of
-          Nothing -> (ChunkHeader Nothing (pack $3))
-          _       -> (ChunkHeader (Just $ pack $1) (pack $3))
+          Nothing -> (ChunkHeader (Just $ pack $1) (pack $3))
+          _       -> (ChunkHeader Nothing (pack $3))
     }
 
 pos :: Pos
