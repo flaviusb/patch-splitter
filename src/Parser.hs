@@ -67,7 +67,7 @@ pos :: Pos
   = "@@ -" [0-9]+ [,] [0-9]+ [ ] [+] [0-9]+ [,] [0-9]+ [ ] "@@" { Pos (read $1) (read $3) (read $6) (read $8) }
 
 changeop :: ChangeOp
-  = pos liness? { ChangeOp $1 $ fromMaybe (Lines [] True) $2 }
+  = pos nl? liness? { ChangeOp $1 $ fromMaybe (Lines [] True) $3 }
 
 change :: Change
   = chunkheader nl (changeop { $1 }) { Change $1 [$3] }
