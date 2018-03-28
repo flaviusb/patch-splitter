@@ -1,7 +1,7 @@
 {-# Language TemplateHaskell, QuasiQuotes, FlexibleContexts, DeriveDataTypeable #-}
 
 module Lib
-    ( someFunc, patches, Patch(..)
+    ( someFunc, patches, patch, Patch(..)
     ) where
 
 import Text.Peggy

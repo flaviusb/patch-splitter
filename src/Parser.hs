@@ -5,7 +5,7 @@ module Parser
 
 import Text.Peggy
 import Data.Text (Text, pack, unlines)
-import Data.Maybe (catMaybes)
+import Data.Maybe (fromMaybe)
 import Data.Data
 import Data.Typeable
 
@@ -13,7 +13,7 @@ data Patch = Patch CommitLine CommitMetadata Diff deriving (Show, Data, Eq, Type
 
 data Diff = Diff [Change] deriving (Show, Data, Eq, Typeable)
 
-data Change = Change ChunkHeader ChangeOp deriving (Show, Data, Eq, Typeable) {- oldpath newpath change_operation -}
+data Change = Change ChunkHeader [ChangeOp] deriving (Show, Data, Eq, Typeable) {- oldpath newpath change_operation -}
 
 data ChangeOp = ChangeOp Pos Lines deriving (Show, Data, Eq, Typeable)
 
@@ -33,20 +33,13 @@ data ChunkHeader = ChunkHeader (Maybe Text) Text deriving (Show, Data, Eq, Typea
 
 nl :: String = [\r]? [\n] { "\n" }
 
-addline :: Maybe Line
-  = "+" ([^\n\r]*) nl { Just $ AddLine    (pack $1) }
-
-removeline :: Maybe Line
-  = "-" ([^\n\r]*) nl { Just $ RemoveLine (pack $1) }
-
-unchangedline :: Maybe Line
-  = " " ([^\n\r]*) nl { Just $ UnchangedLine (pack $1) }
-
-firstline :: Maybe Line
-  = ([^\n\r]*) nl { Just $ UnchangedLine (pack $1) }
-
 liness :: Lines
-  = firstline (addline / removeline / unchangedline)+ ("\ No newline at end of file" nl)? { Lines (catMaybes $ $1:$2) ($3 == Nothing) }
+  = ([-+ ] ([^\n\r]*) nl {
+      case [$1] of
+        " " -> UnchangedLine (pack $2)
+        "+" -> AddLine (pack $2)
+        "-" -> RemoveLine (pack $2)
+    })+ ("\\ No newline at end of file" nl)? { Lines $1 ($2 == Nothing) }
 
 hash :: Text
   = [a-f0-9]+ { pack $1 }
@@ -71,16 +64,16 @@ chunkheader :: ChunkHeader
     }
 
 pos :: Pos
-  = "@@ -" [0-9]+ "," [0-9]+ [ ] "+" [0-9]+ "," [0-9]+ [ ] "@@" { Pos (read $1) (read $2) (read $4) (read $5) }
+  = "@@ -" [0-9]+ [,] [0-9]+ [ ] [+] [0-9]+ [,] [0-9]+ [ ] "@@" { Pos (read $1) (read $3) (read $6) (read $8) }
 
 changeop :: ChangeOp
-  = pos liness { ChangeOp $1 $2 }
+  = pos liness? { ChangeOp $1 $ fromMaybe (Lines [] True) $2 }
 
 change :: Change
-  = chunkheader nl changeop { Change $1 $3 }
+  = chunkheader nl (changeop { $1 }) { Change $1 [$3] }
 
 diff :: Diff
-  = (change nl { $1 })+ { Diff $1 }
+  = (change { $1 })+ { Diff $1 }
 
 patch :: Patch
   = commitline nl metadata nl diff { Patch $1 $3 $5 }
