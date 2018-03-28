@@ -86,6 +86,6 @@ patch :: Patch
   = commitline nl metadata nl diff { Patch $1 $3 $5 }
 
 patches :: [Patch]
-  = (patch nl nl { $1 })+
+  = (patch nl { $1 })* (patch { [$1] }) { $1 ++ $2 }
 
 |]
