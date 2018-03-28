@@ -8,6 +8,7 @@ import Text.Peggy
 import Data.Text (Text, pack)
 import Data.Maybe (catMaybes)
 import Parser
+import GenerateCode
 
 someFunc :: IO ()
 someFunc = putStrLn "someFunc"
