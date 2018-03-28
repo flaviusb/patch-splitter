@@ -42,8 +42,11 @@ removeline :: Maybe Line
 unchangedline :: Maybe Line
   = " " ([^\n\r]*) nl { Just $ UnchangedLine (pack $1) }
 
+firstline :: Maybe Line
+  = ([^\n\r]*) nl { Just $ UnchangedLine (pack $1) }
+
 liness :: Lines
-  = (addline / removeline / unchangedline)+ ("\ No newline at end of file" nl)? { Lines (catMaybes $1) ($2 == Nothing) }
+  = firstline (addline / removeline / unchangedline)+ ("\ No newline at end of file" nl)? { Lines (catMaybes $ $1:$2) ($3 == Nothing) }
 
 hash :: Text
   = [a-f0-9]+ { pack $1 }
@@ -71,7 +74,7 @@ pos :: Pos
   = "@@ -" [0-9]+ "," [0-9]+ " +" [0-9]+ "," [0-9]+ " @@" { Pos (read $1) (read $2) (read $3) (read $4) }
 
 changeop :: ChangeOp
-  = pos nl liness { ChangeOp $1 $3 }
+  = pos liness { ChangeOp $1 $2 }
 
 change :: Change
   = chunkheader nl changeop { Change $1 $3 }
