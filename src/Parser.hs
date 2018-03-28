@@ -58,7 +58,7 @@ commitline :: CommitLine
   = "commit " hash (" "+ hash { $2 })* aftertext?  { CommitLine $1 $2 $3 }
 
 indentedtext :: Text
-  = ("    " aftertext nl { $1 })+ { Data.Text.unlines $1 }
+  = ([ ] [ ] [ ] [ ] aftertext nl { $5 })+ { Data.Text.unlines $1 }
 
 metadata :: CommitMetadata
   = "Author:     " aftertext nl "AuthorDate: " aftertext nl "Commit:     " aftertext nl "CommitDate: " aftertext nl nl indentedtext { CommitMetadata $10 $1 $3 $5 $7 }
