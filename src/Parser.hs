@@ -64,7 +64,7 @@ metadata :: CommitMetadata
   = "Author:     " aftertext nl "AuthorDate: " aftertext nl "Commit:     " aftertext nl "CommitDate: " aftertext nl nl indentedtext { CommitMetadata $10 $1 $3 $5 $7 }
 
 chunkheader :: ChunkHeader
-  = "diff --git a/" [^ \n\r]+ " b/" [^ \n\r]+ nl ("new file mode " [^ \n\r]+ nl { "New File" })? "index " [^ \n\r]+ (" " [^ \n\r]+)? nl (("--- a/" [^ \n\r]+) / "--- /dev/null" { "/dev/null" }) nl "+++ b/" [^ \n\r]+ { 
+  = "diff --git a/" [^ \n\r]+ " b/" [^ \n\r]+ nl ("new file mode " [^ \n\r]+ nl { "New File" })? "index " [^ \n\r]+ (" " [^ \n\r]+)* nl (("--- a/" [^ \n\r]+) / "--- /dev/null" { "/dev/null" }) nl "+++ b/" [^ \n\r]+ { 
         case $4 of
           Nothing -> (ChunkHeader Nothing (pack $2))
           _       -> (ChunkHeader (Just $ pack $1) (pack $2))
