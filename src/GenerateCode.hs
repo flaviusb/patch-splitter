@@ -1,4 +1,4 @@
-{-# Language TemplateHaskell, QuasiQuotes, FlexibleContexts, DeriveDataTypeable #-}
+{-# Language TemplateHaskell, QuasiQuotes, FlexibleContexts, DeriveDataTypeable, Haskell2010, OverloadedStrings #-}
 
 module GenerateCode
      where
@@ -21,7 +21,18 @@ applyOp txt (ChangeOp (Pos startline startextent endline endextent) l)
           foo = (DT.lines txt)
           a = splitAt startline foo
           b = splitAt startextent (snd a)
-          processed = process (fst b) l
+          processed = process (fst b) l []
 
-process :: [Text] -> Lines -> Text
-process txt changes = undefined
+process :: [Text] -> Lines -> [Text] -> Text
+process (t:txt) (Lines (change:rest) nl) acc = case change of
+    AddLine line       -> process (t:txt) (Lines rest nl) (line:acc)
+    RemoveLine line    -> if t == line then (process txt (Lines rest nl) (acc)) else undefined
+    UnchangedLine line -> if t == line then (process txt (Lines rest nl) (line:acc)) else undefined
+
+process [] (Lines (change:rest) nl) acc = case change of
+    AddLine line       -> process [] (Lines rest nl) (line:acc)
+    _                  -> undefined
+
+process (t:txt) (Lines [] nl) acc = undefined
+
+process [] (Lines [] nl) acc = DT.concat $ if nl then (acc ++ ["\n"]) else acc
