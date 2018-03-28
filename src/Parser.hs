@@ -64,7 +64,7 @@ chunkheader :: ChunkHeader
     }
 
 pos :: Pos
-  = "@@ -" [0-9]+ [,] [0-9]+ [ ] [+] [0-9]+ [,] [0-9]+ [ ] "@@" { Pos (read $1) (read $3) (read $6) (read $8) }
+  = "@@ -" [0-9]+ [,] [0-9]+ [ ] [+] [0-9]+ [,] [0-9]+ [ ] '@@' { Pos (read $1) (read $3) (read $6) (read $8) }
 
 changeop :: ChangeOp
   = pos nl? liness? { ChangeOp $1 $ fromMaybe (Lines [] True) $3 }
@@ -79,6 +79,6 @@ patch :: Patch
   = commitline nl metadata nl diff { Patch $1 $3 $5 }
 
 patches :: [Patch]
-  = (patch nl { $1 })* (patch { [$1] }) { $1 ++ $2 }
+  = patch (nl patch { $2 })* { $1:$2 }
 
 |]
