@@ -10,7 +10,8 @@ import System.IO
 import Data.List
 
 data AppOptions = AppOptions {
-  fileName :: String
+  fileName :: String,
+  outputDirectory :: String
 }
 
 appoptions :: OA.Parser AppOptions
@@ -18,6 +19,9 @@ appoptions = AppOptions
         <$> argument str
               ( metavar "FILE"
              <> help "File to parse" )
+        <*> argument str
+              ( metavar "DIRECTORY"
+             <> help "Directory to output files to.")
 
 real_main :: AppOptions -> IO ()
 real_main options =
