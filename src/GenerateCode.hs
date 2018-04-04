@@ -10,6 +10,9 @@ import Data.Data
 import Data.Typeable
 import Parser
 import Data.List
+import Text.Shakespeare.Text
+import Control.Monad.Supply
+import KotlinTemplates
 
 applyChange :: Text -> Change -> Text
 applyChange txt (Change _ ops) = foldl applyOp txt ops
@@ -36,3 +39,12 @@ process [] (Lines (change:rest) nl) acc = case change of
 process (t:txt) (Lines [] nl) acc = undefined
 
 process [] (Lines [] nl) acc = DT.concat $ if nl then (acc ++ ["\n"]) else acc
+
+generateFiles :: 
+
+
+section :: Diff -> [Text] -> Text
+
+tinySection Change -> 
+
+
