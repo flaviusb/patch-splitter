@@ -94,11 +94,24 @@ kotlinPost = [st|    }
 
 {-kotlinSection-}
 
-kotlinDiffApplication :: Text -> ChangeOp -> KVariable -> KVariable -> KVariable -> Text
-kotlinDiffApplication filename (ChangeOp (Pos startline startextent endline endextent) l) (KVariable initial_file_contents) (KVariable diffed_file_contents_accumulator) (KVariable hash) = [st|
-    val #{initial_file_contents} = storageDir.readString().split("\n")
+{-
+ -    val #{initial_file_contents} = storageDir.readString().split("\n")
+ -}
+
+kotlinChangeOpApplication :: Text -> ChangeOp -> KVariable -> KVariable -> KVariable -> Text
+kotlinChangeOpApplication filename (ChangeOp (Pos startline startextent endline endextent) (Lines changes nl)) (KVariable initial_file_contents) (KVariable diffed_file_contents_accumulator) (KVariable hash) = [st|
     var #{diffed_file_contents_accumulator} = $if startline == 0
       List<String>()
     $else
       #{initial_file_contents}.split(IntRange(0, #{startline - 1})
+    $forall change <- changes
+      $case change
+        $of AddLine line
+          #{diffed_file_contents_accumulator}.push(#{line})
+        $of RemovedLine line
+          // Removed line
+        $of UnchangedLine line
+          #{diffed_file_contents_accumulator}.push(#{line})
+    #{diffed_file_contents_accumulator}.push(#{initial_file_contents}.split(IntRange(#{startextent},  #{initial_file_contents}.length))
+
 |]
