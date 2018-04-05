@@ -98,8 +98,28 @@ kotlinPost = [st|    }
  -    val #{initial_file_contents} = storageDir.readString().split("\n")
  -}
 
-kotlinChangeOpApplication :: Text -> ChangeOp -> KVariable -> KVariable -> KVariable -> Text
-kotlinChangeOpApplication filename (ChangeOp (Pos startline startextent endline endextent) (Lines changes nl)) (KVariable initial_file_contents) (KVariable diffed_file_contents_accumulator) (KVariable hash) = [st|
+kotlinApplyChanges :: Change -> ... -> Text
+kotlinApplyChanges (Change (ChunkHeader oldfile newfile) changeops) = if oldfile == Nothing
+    then
+        {- We have a diff that should just be solid addition, from nothing, with only one changeop. Create a new file and populate it. -}
+        let newtext = case changeops of
+          (ChangeOp _ (Lines lines nl)):[] -> DT.concat (map lines (\case of
+            AddLine line -> line
+            _            -> undefined
+          ))
+        [st|
+        storageDir.writeString(#{newfile}, #{newtext})
+        ... commit changes
+        |]
+    else
+        [st|
+        val #{initial_file_contents} = storageDir.readString(#{initial_filename}).split("\n")
+        #{DT.concat $ map changeops (\x -> kotlinChangeOpApplication x ...)}
+        ... commit changes
+        |]
+
+kotlinChangeOpApplication :: ChangeOp -> KVariable -> KVariable -> KVariable -> Text
+kotlinChangeOpApplication (ChangeOp (Pos startline startextent endline endextent) (Lines changes nl)) (KVariable initial_file_contents) (KVariable diffed_file_contents_accumulator) (KVariable hash) = [st|
     var #{diffed_file_contents_accumulator} = $if startline == 0
       List<String>()
     $else
