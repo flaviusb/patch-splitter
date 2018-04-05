@@ -13,6 +13,7 @@ import Data.List
 import Text.Shakespeare.Text
 import Control.Monad.Supply
 import KotlinTemplates
+import KIdentifiers
 
 applyChange :: Text -> Change -> Text
 applyChange txt (Change _ ops) = foldl applyOp txt ops
