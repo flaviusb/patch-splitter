@@ -12,6 +12,7 @@ import Parser
 import Data.List
 import Text.Shakespeare.Text
 import Control.Monad.Supply
+import KIdentifiers
 
 
 {-
@@ -93,8 +94,13 @@ kotlinPost = [st|    }
 
 kotlinSection
 
-kotlinDiffApplication :: Text -> ChangeOp -> Text
-kotlinDiffApplication filename (ChangeOp (Pos startline startextent endline endextent) l) = [st|
-    val mountedTestFile = File(mountPoint, #{filename})
-    val user
+kotlinDiffApplication :: Text -> ChangeOp -> KVariable -> Text
+kotlinDiffApplication filename (ChangeOp (Pos startline startextent endline endextent) l) (KVariable initial_file_contents) (KVariable diffed_file_contents_accumulator) (KVariable hash) = [st|
+    val #{initial_file_contents} = storageDir.readString().split("\n")
+    var #{diffed_file_contents_accumulator} = $if startline == 0
+      List<String>()
+    $else
+      #{initial_file_contents}.split(IntRange(0, #{startline - 1})
+    val #{mounted_test_file} = File(mountPoint, #{filename})
+    #{mounted_test_file}.mkdirs()
 |]
