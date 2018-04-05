@@ -41,6 +41,7 @@ process (t:txt) (Lines [] nl) acc = undefined
 
 process [] (Lines [] nl) acc = DT.concat $ if nl then (acc ++ ["\n"]) else acc
 
+{-
 generateFiles :: 
 
 
@@ -48,4 +49,4 @@ section :: Diff -> [Text] -> Text
 
 tinySection Change -> 
 
-
+-}
