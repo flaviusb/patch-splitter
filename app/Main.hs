@@ -8,10 +8,11 @@ import Text.Peggy
 import Control.Applicative
 import System.IO
 import Data.List
+import Data.Text
 
 data AppOptions = AppOptions {
   fileName :: String,
-  outputDirectory :: String
+  outputFile :: String
 }
 
 appoptions :: OA.Parser AppOptions
@@ -20,8 +21,8 @@ appoptions = AppOptions
               ( metavar "FILE"
              <> help "File to parse" )
         <*> argument str
-              ( metavar "DIRECTORY"
-             <> help "Directory to output files to.")
+              ( metavar "FILE"
+             <> help "Output file name")
 
 real_main :: AppOptions -> IO ()
 real_main options =
@@ -31,7 +32,7 @@ real_main options =
           kotlin_code = case commits of
             Right commit_data -> completeKotlin commit_data
             Left  error       -> undefined
-      putStrLn $ show kotlin_code
+      putStrLn $ unpack kotlin_code
 
 main :: IO ()
 main = execParser opts >>= real_main
