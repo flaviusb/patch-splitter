@@ -104,9 +104,9 @@ kotlinApplyChanges (Change (ChunkHeader oldfile newfile) changeops) = if oldfile
         {- We have a diff that should just be solid addition, from nothing, with only one changeop. Create a new file and populate it. -}
         let newtext =
                 case changeops of
-                    (ChangeOp _ (Lines lines nl)):[] -> DT.concat (map lines (\case
+                    (ChangeOp _ (Lines lines nl)):[] -> DT.concat (map (\case
                             AddLine line -> line
-                            _            -> undefined)) in
+                            _            -> undefined) lines) in
         [st|
         storageDir.writeString(#{newfile}, #{newtext})
         ... commit changes
