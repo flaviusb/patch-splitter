@@ -26,6 +26,7 @@ dependencies:
 - optparse-applicative
 - shakespeare
 - monad-supply >= 0.6
+- mtl
 
 library:
   source-dirs: src

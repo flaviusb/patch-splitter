@@ -4,7 +4,7 @@ module KotlinTemplates
      where
 
 import Data.Text (Text, pack)
-import Data.Text as DT (concat, lines)
+import Data.Text as DT (concat, lines, replicate)
 import Data.Maybe (fromMaybe)
 import Data.Data
 import Data.Typeable
@@ -12,7 +12,8 @@ import Parser
 import Data.List
 import Text.Shakespeare.Text
 import Control.Monad.Supply
-import Control.Monad (liftM, forM, mapM)
+import Control.Monad.Identity
+import Control.Monad (liftM, forM, mapM, sequence)
 import KIdentifiers
 
 
@@ -92,6 +93,14 @@ class #{class_name} {
 kotlinPost = [st|    }
 }
 |]
+
+
+runSupplyVars x = fst $ runSupply x vars
+    where vars = [DT.concat [("f" :: Text), (DT.replicate k "o")] | k <- [1..]]
+    {-where vars = [replicate k ("foo" :: Text) | k <- [1..]]-}
+
+completeKotlin patch = do
+    runSupplyVars $ kotlinFromPatch patch
 
 kotlinFromPatch (Patch _ _ diff) = do
   class_name <- new_class
