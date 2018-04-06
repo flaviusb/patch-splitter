@@ -151,10 +151,10 @@ kotlinApplyChanges (Change (ChunkHeader oldfile newfile) changeops) = do
 linesToText :: Text -> Line -> Text
 linesToText diffed_file_contents_accumulator = \case
   AddLine line -> [st|
-          #{diffed_file_contents_accumulator}.push(#{line})
+          #{diffed_file_contents_accumulator}.push("#{line}")
       |]
   UnchangedLine line -> [st|
-          #{diffed_file_contents_accumulator}.push(#{line})
+          #{diffed_file_contents_accumulator}.push("#{line}")
       |]
   _                  -> undefined
 
