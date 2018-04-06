@@ -12,6 +12,7 @@ import Parser
 import Data.List
 import Text.Shakespeare.Text
 import Control.Monad.Supply
+import Control.Monad (liftM, forM, mapM)
 import KIdentifiers
 
 
@@ -23,8 +24,8 @@ import KIdentifiers
  - Some understanding of the Diff datatype defined in src/Parser.hs is needed to write useful tests.
  -}
 
-kotlinPre :: Text -> Text
-kotlinPre class_name = [st|package org.fejoa.fs
+kotlinPre :: KClass -> Text
+kotlinPre (KClass class_name) = [st|package org.fejoa.fs
 
 import junit.framework.TestCase
 import kotlinx.coroutines.experimental.newSingleThreadContext
@@ -92,9 +93,18 @@ kotlinPost = [st|    }
 }
 |]
 
+kotlinFromPatch (Patch _ _ diff) = do
+  class_name <- new_class
+  middle <- kotlinApplyDiff diff
+  let prologue = kotlinPre class_name
+      epilogue = kotlinPost
+      in do
+          return $ DT.concat [prologue, middle, epilogue]
 
+kotlinApplyDiff :: Diff -> Supply Text Text
 kotlinApplyDiff (Diff diffs) = do
-    return DT.concat $ mapM kotlinApplyChanges diffs
+    stuff <- mapM kotlinApplyChanges diffs
+    return $ DT.concat stuff
 
 {-kotlinApplyChanges :: Change -> ... -> Text-}
 kotlinApplyChanges (Change (ChunkHeader oldfile newfile) changeops) = do

@@ -15,11 +15,12 @@ identlify typeconstructor prefix = do
     return $ typeconstructor $ append prefix suffix
 
 variablify = identlify KVariable
+classify   = identlify KClass
 
 new_commit = variablify "commit_"
 
 new_content_accumulator = variablify "content_"
 
-new_class = KClass "Klass_"
+new_class = classify "KClass_"
 
 
