@@ -99,24 +99,33 @@ kotlinPost = [st|    }
  -}
 
 {-kotlinApplyChanges :: Change -> ... -> Text-}
-kotlinApplyChanges (Change (ChunkHeader oldfile newfile) changeops) = if oldfile == Nothing
-    then
+kotlinApplyChanges (Change (ChunkHeader oldfile newfile) changeops) = do
+    if oldfile == Nothing then do
         {- We have a diff that should just be solid addition, from nothing, with only one changeop. Create a new file and populate it. -}
         let newtext =
                 case changeops of
                     (ChangeOp _ (Lines lines nl)):[] -> DT.concat (map (\case
                             AddLine line -> line
                             _            -> undefined) lines) in
-        [st|
-        storageDir.writeString(#{newfile}, #{newtext})
-        ... commit changes
+                return ([st|
+                storageDir.writeString(#{newfile}, #{newtext})
+                ... commit changes
+                |])
+    else do
+        initial_file_contents <- new_content_accumulator
+        let initial = [st|
+        val #{initial_file_contents} = storageDir.readString(#{fromMaybe oldfile}).split("\n")
         |]
-    else
-        [st|
-        val #{initial_file_contents} = storageDir.readString(#{initial_filename}).split("\n")
-        #{DT.concat $ map changeops kotlinChangeOpApplication }
-        ... commit changes
-        |]
+            final = [st|
+        // commit changes
+        |] in
+              do
+                middle <- mapM (\x -> do
+                          var1 <- new_content_accumulator
+                          var2 <- new_content_accumulator
+                          hash <- new_content_accumulator
+                          return $ kotlinChangeOpApplication x var1 var2 hash) changeops
+                return $ DT.concat [initial, DT.concat middle, final]
 
 kotlinChangeOpApplication :: ChangeOp -> KVariable -> KVariable -> KVariable -> Text
 kotlinChangeOpApplication (ChangeOp (Pos startline startextent endline endextent) (Lines changes nl)) (KVariable initial_file_contents) (KVariable diffed_file_contents_accumulator) (KVariable hash) = [st|
