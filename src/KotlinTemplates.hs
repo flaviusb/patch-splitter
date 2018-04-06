@@ -162,11 +162,19 @@ kotlinChangeOpApplication :: ChangeOp -> KVariable -> KVariable -> KVariable -> 
 kotlinChangeOpApplication (ChangeOp (Pos startline startextent endline endextent) (Lines changes nl)) (KVariable initial_file_contents) (KVariable diffed_file_contents_accumulator) (KVariable hash) =
     let linesInternal = linesToText diffed_file_contents_accumulator
     in  [st|
-    var #{diffed_file_contents_accumulator} = $if startline == 0
-      List<String>()
-    $else
-      #{initial_file_contents}.split(IntRange(0, #{startline - 1})
+    var #{diffed_file_contents_accumulator} = #{kotlinMaybeZeroStartline startline initial_file_contents}
     #{DT.concat $ map linesInternal changes}
     #{diffed_file_contents_accumulator}.push(#{initial_file_contents}.split(IntRange(#{startextent},  #{initial_file_contents}.length))
 
 |]
+
+kotlinMaybeZeroStartline startline initial_file_contents = if startline == 0
+    then
+        [st|
+        List<String>()
+        |]
+      else
+        [st|
+         #{initial_file_contents}.split(IntRange(0, #{startline - 1}))
+        |]
+
