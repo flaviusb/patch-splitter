@@ -28,7 +28,10 @@ real_main options =
     do
       commit_text <- readFile $ fileName options
       let commits = parseString patches (fileName options) commit_text
-      putStrLn $ show commits
+          kotlin_code = case commits of
+            Right commit_data -> completeKotlin commit_data
+            Left  error       -> undefined
+      putStrLn $ show kotlin_code
 
 main :: IO ()
 main = execParser opts >>= real_main

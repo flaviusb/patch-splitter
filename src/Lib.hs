@@ -1,7 +1,7 @@
 {-# Language TemplateHaskell, QuasiQuotes, FlexibleContexts, DeriveDataTypeable #-}
 
 module Lib
-    ( someFunc, patches, patch, Patch(..), kotlinFromPatch
+    ( someFunc, patches, patch, Patch(..), completeKotlin
     ) where
 
 import Text.Peggy

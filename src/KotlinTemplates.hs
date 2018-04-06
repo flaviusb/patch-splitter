@@ -100,15 +100,19 @@ runSupplyVars x = fst $ runSupply x vars
     {-where vars = [replicate k ("foo" :: Text) | k <- [1..]]-}
 
 completeKotlin patch = do
-    runSupplyVars $ kotlinFromPatch patch
+    runSupplyVars $ kotlinFromPatches patch
 
-kotlinFromPatch (Patch _ _ diff) = do
+kotlinFromPatches patches = do
   class_name <- new_class
-  middle <- kotlinApplyDiff diff
+  middle <- mapM kotlinFromPatch patches
   let prologue = kotlinPre class_name
       epilogue = kotlinPost
       in do
-          return $ DT.concat [prologue, middle, epilogue]
+          return $ DT.concat [prologue, DT.concat middle, epilogue]
+
+kotlinFromPatch (Patch _ _ diff) = do
+  middle <- kotlinApplyDiff diff
+  return $ middle
 
 kotlinApplyDiff :: Diff -> Supply Text Text
 kotlinApplyDiff (Diff diffs) = do
