@@ -1,4 +1,4 @@
-{-# Language TemplateHaskell, QuasiQuotes, FlexibleContexts, DeriveDataTypeable, Haskell2010, OverloadedStrings #-}
+{-# Language TemplateHaskell, QuasiQuotes, FlexibleContexts, DeriveDataTypeable, Haskell2010, OverloadedStrings, LambdaCase #-}
 
 module KotlinTemplates
      where
@@ -98,15 +98,15 @@ kotlinPost = [st|    }
  -    val #{initial_file_contents} = storageDir.readString().split("\n")
  -}
 
-kotlinApplyChanges :: Change -> ... -> Text
+{-kotlinApplyChanges :: Change -> ... -> Text-}
 kotlinApplyChanges (Change (ChunkHeader oldfile newfile) changeops) = if oldfile == Nothing
     then
         {- We have a diff that should just be solid addition, from nothing, with only one changeop. Create a new file and populate it. -}
-        let newtext = case changeops of
-          (ChangeOp _ (Lines lines nl)):[] -> DT.concat (map lines (\case of
-            AddLine line -> line
-            _            -> undefined
-          ))
+        let newtext =
+                case changeops of
+                    (ChangeOp _ (Lines lines nl)):[] -> DT.concat (map lines (\case
+                            AddLine line -> line
+                            _            -> undefined)) in
         [st|
         storageDir.writeString(#{newfile}, #{newtext})
         ... commit changes
@@ -114,7 +114,7 @@ kotlinApplyChanges (Change (ChunkHeader oldfile newfile) changeops) = if oldfile
     else
         [st|
         val #{initial_file_contents} = storageDir.readString(#{initial_filename}).split("\n")
-        #{DT.concat $ map changeops (\x -> kotlinChangeOpApplication x ...)}
+        #{DT.concat $ map changeops kotlinChangeOpApplication }
         ... commit changes
         |]
 
