@@ -112,9 +112,9 @@ kotlinApplyChanges (Change (ChunkHeader oldfile newfile) changeops) = do
                 ... commit changes
                 |])
     else do
-        initial_file_contents <- new_content_accumulator
+        (KVariable initial_file_contents) <- new_content_accumulator
         let initial = [st|
-        val #{initial_file_contents} = storageDir.readString(#{fromMaybe oldfile}).split("\n")
+        val #{initial_file_contents} = storageDir.readString(#{fromMaybe "" oldfile}).split("\n")
         |]
             final = [st|
         // commit changes
@@ -127,20 +127,25 @@ kotlinApplyChanges (Change (ChunkHeader oldfile newfile) changeops) = do
                           return $ kotlinChangeOpApplication x var1 var2 hash) changeops
                 return $ DT.concat [initial, DT.concat middle, final]
 
+linesToText :: Text -> Line -> Text
+linesToText diffed_file_contents_accumulator = \case
+  AddLine line -> [st|
+          #{diffed_file_contents_accumulator}.push(#{line})
+      |]
+  UnchangedLine line -> [st|
+          #{diffed_file_contents_accumulator}.push(#{line})
+      |]
+  _                  -> undefined
+
 kotlinChangeOpApplication :: ChangeOp -> KVariable -> KVariable -> KVariable -> Text
-kotlinChangeOpApplication (ChangeOp (Pos startline startextent endline endextent) (Lines changes nl)) (KVariable initial_file_contents) (KVariable diffed_file_contents_accumulator) (KVariable hash) = [st|
+kotlinChangeOpApplication (ChangeOp (Pos startline startextent endline endextent) (Lines changes nl)) (KVariable initial_file_contents) (KVariable diffed_file_contents_accumulator) (KVariable hash) =
+    let linesInternal = linesToText diffed_file_contents_accumulator
+    in  [st|
     var #{diffed_file_contents_accumulator} = $if startline == 0
       List<String>()
     $else
       #{initial_file_contents}.split(IntRange(0, #{startline - 1})
-    $forall change <- changes
-      $case change
-        $of AddLine line
-          #{diffed_file_contents_accumulator}.push(#{line})
-        $of RemovedLine line
-          // Removed line
-        $of UnchangedLine line
-          #{diffed_file_contents_accumulator}.push(#{line})
+    #{DT.concat $ map linesInternal changes}
     #{diffed_file_contents_accumulator}.push(#{initial_file_contents}.split(IntRange(#{startextent},  #{initial_file_contents}.length))
 
 |]
