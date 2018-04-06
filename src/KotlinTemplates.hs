@@ -92,11 +92,9 @@ kotlinPost = [st|    }
 }
 |]
 
-{-kotlinSection-}
 
-{-
- -    val #{initial_file_contents} = storageDir.readString().split("\n")
- -}
+kotlinApplyDiff (Diff diffs) = do
+    return DT.concat $ mapM kotlinApplyChanges diffs
 
 {-kotlinApplyChanges :: Change -> ... -> Text-}
 kotlinApplyChanges (Change (ChunkHeader oldfile newfile) changeops) = do
