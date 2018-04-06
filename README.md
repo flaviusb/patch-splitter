@@ -4,7 +4,15 @@ This takes the output of `git log -p --reverse --binary --pretty=fuller --parent
 
 # Running
 
-It does not yet run.
+Run `patch-splitter-exe DIFFS OUTPUT` to generate kotlin code based on the diffs in the file DIFFS.
+
+if you want to run it on a repository `foo`, simply run
+```
+cd foo
+git log -p --reverse --binary --pretty=fuller --parents --full-history -m > ../foo-patches
+cd ..
+patch-splitter-exe foo-patches foo-cloudefs.kt
+```
 
 # Build Instructions
 
