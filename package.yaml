@@ -27,6 +27,7 @@ dependencies:
 - shakespeare
 - monad-supply >= 0.6
 - mtl
+- digits >= 0.3
 
 library:
   source-dirs: src

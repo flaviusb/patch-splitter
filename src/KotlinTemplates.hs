@@ -15,6 +15,7 @@ import Control.Monad.Supply
 import Control.Monad.Identity
 import Control.Monad (liftM, forM, mapM, sequence)
 import KIdentifiers
+import Data.Digits (digits)
 
 
 {-
@@ -96,8 +97,9 @@ kotlinPost = [st|    }
 
 
 runSupplyVars x = fst $ runSupply x vars
-    where vars = [DT.concat [("f" :: Text), (DT.replicate k "o")] | k <- [1..]]
-    {-where vars = [replicate k ("foo" :: Text) | k <- [1..]]-}
+    where vars = [ makeAText k | k <- [1..]]
+
+makeAText num = pack $ map (\x -> "abcdefghijklmnopqrstuvwxyz" !! x) (digits 26 num)
 
 completeKotlin patch = do
     runSupplyVars $ kotlinFromPatches patch
